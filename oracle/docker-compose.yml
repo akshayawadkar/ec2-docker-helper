@@ -11,6 +11,5 @@ services:
       - "5500:5500"
     volumes:
       - ./volume/oracle/oradata:/opt/oracle/oradata
-    restart: always
 
 # https://container-registry.oracle.com/ords/f?p=113:4:8662717411193:::4:P4_REPOSITORY,AI_REPOSITORY,AI_REPOSITORY_NAME,P4_REPOSITORY_NAME,P4_EULA_ID,P4_BUSINESS_AREA_ID:9,9,Oracle%20Database%20Enterprise%20Edition,Oracle%20Database%20Enterprise%20Edition,1,0&cs=3qLSpdtu8iOCn7Qcv_Fnh_u68HRBh06b3YBAx4Dzo0ePTd369kBuSs_GkC63NMge0XNiZQ1uSNUOBNHnyApalEQ    

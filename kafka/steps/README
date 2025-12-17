@@ -1,0 +1,126 @@
+This error confirms exactly what’s wrong 👍
+
+```
+[Errno 13] Permission denied: '/var/lib/zookeeper/data/myid'
+```
+
+Zookeeper is trying to write the `myid` file **inside the container**, but the **host-mounted directory is not writable by the Zookeeper user**.
+
+---
+
+## Why this happens (important)
+
+* `cp-zookeeper` runs as **UID 1000**
+* Your bind mount:
+
+  ```
+  ./volume/zookeeper/data -> /var/lib/zookeeper/data
+  ```
+* That host directory is owned by **root** (or another user)
+* Result → Zookeeper cannot create `myid`
+
+---
+
+## ✅ Correct Fix (recommended)
+
+### 1️⃣ Stop containers
+
+```bash
+docker-compose down
+```
+
+---
+
+### 2️⃣ Fix ownership on the host
+
+Run this **from the directory containing `docker-compose.yml`**:
+
+```bash
+sudo chown -R 1000:1000 volume/zookeeper
+```
+
+If you want to be safe, fix all volumes:
+
+```bash
+sudo chown -R 1000:1000 volume
+```
+
+---
+
+### 3️⃣ Set permissions
+
+```bash
+chmod -R 755 volume/zookeeper
+```
+
+---
+
+### 4️⃣ Remove partially-created bad data (important)
+
+If Zookeeper already failed once, clean it:
+
+```bash
+rm -rf volume/zookeeper/data/*
+rm -rf volume/zookeeper/log/*
+```
+
+---
+
+### 5️⃣ Start again
+
+```bash
+docker-compose up -d
+```
+
+---
+
+## 🔍 Verify inside the container
+
+```bash
+docker exec -it zookeeper ls -l /var/lib/zookeeper/data
+```
+
+You **should now see**:
+
+```
+myid
+```
+
+---
+
+## ❌ Common mistakes to avoid
+
+| Mistake                                | Why                   |
+| -------------------------------------- | --------------------- |
+| `chmod 777`                            | Insecure              |
+| Running as root                        | Bad practice          |
+| Letting Docker “auto-create” bind dirs | Wrong ownership       |
+| Not cleaning failed data               | Causes repeat crashes |
+
+---
+
+## 🟡 Alternative (quick test only)
+
+Force root user (NOT recommended):
+
+```yaml
+zookeeper:
+  user: root
+```
+
+Use **only for local debugging**, never prod.
+
+---
+
+## ✅ Final takeaway
+
+**Bind mounts require correct host permissions.**
+Docker does **not** grant “admin rights” automatically.
+
+If you want, I can:
+
+* Convert this setup to **named volumes** (Docker manages perms)
+* Migrate Kafka to **KRaft mode** (no Zookeeper)
+* Provide a **production-ready compose**
+
+Just say the word.
