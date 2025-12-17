@@ -14,8 +14,7 @@ services:
     volumes:
       - ./volume/zookeeper/data:/var/lib/zookeeper/data
       - ./volume/zookeeper/log:/var/lib/zookeeper/log
-    networks:
-      - kafka-master-network
+
 
   kafka-1:
     image: confluentinc/cp-kafka:7.3.2
@@ -35,8 +34,7 @@ services:
       - zookeeper
     volumes:
       - ./volume/kafka-1/data:/var/lib/kafka/data
-    networks:
-      - kafka-master-network
+
 
   kafka-2:
     image: confluentinc/cp-kafka:7.3.2
@@ -56,8 +54,7 @@ services:
       - zookeeper
     volumes:
       - ./volume/kafka-2/data:/var/lib/kafka/data
-    networks:
-      - kafka-master-network
+
 
 
   kafka-3:
@@ -78,8 +75,7 @@ services:
       - zookeeper
     volumes:
       - ./volume/kafka-3/data:/var/lib/kafka/data
-    networks:
-      - kafka-master-network
+
 
   schema-registry:
     image: confluentinc/cp-schema-registry:7.3.2
@@ -96,11 +92,6 @@ services:
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka-1:19092,PLAINTEXT://kafka-2:19093,PLAINTEXT://kafka-3:19094
       SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL: INFO
-    networks:
-      - kafka-master-network
 
 
 
-networks:
-  kafka-master-network:
-    driver: bridge
